@@ -53,3 +53,6 @@ A computer program is said to learn from experience E with respect to some class
     - Use an ensemble of high complex algorithms (Bagging).
 - **Grid Search** : an exhaustive searching through a manually specified subset of the hyper-parameter space.
 - **Random search** : select hyper-parameters randomly.
+
+### Details
+[metrics](./concepts/metrics.md)
