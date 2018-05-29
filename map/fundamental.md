@@ -55,4 +55,4 @@ A computer program is said to learn from experience E with respect to some class
 - **Random search** : select hyper-parameters randomly.
 
 ### Details
-[metrics](./concepts/metrics.md)
+[metrics](../concepts/metrics.md)
