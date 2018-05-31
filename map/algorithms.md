@@ -56,10 +56,8 @@ The core principle of AdaBoost is to fit a sequence of weak learners (i.e., mode
 ##### Gradient Tree Boosting
 Gradient Tree Boosting or Gradient Boosted Regression Trees (GBRT) is a generalization of boosting to arbitrary differentiable loss functions. GBRT is an accurate and effective off-the-shelf procedure that can be used for both regression and classification problems.
 
-### Neural network models (supervised)
-
-#### Multi-layer Perceptron
-Multi-layer Perceptron (MLP) is a supervised learning algorithm that learns a function f:from R^m to R^o by training on a dataset, where m is the number of dimensions for input and o is the number of dimensions for output. Given a set of features X and a target y, it can learn a non-linear function approximator for either classification or regression. It is different from logistic regression, in that between the input and the output layer, there can be one or more non-linear layers, called hidden layers.
+### Artificial Neural Network
+see [deeplearning](./deeplearning.md)
 
 ### Clustering
 
