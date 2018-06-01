@@ -26,13 +26,11 @@ A *bag-of-words* is a representation of text that describes the occurrence of wo
 #### Word Embedding
 *Word embedding* is the collective name for a set of language modeling and feature learning techniques in natural language processing (NLP) where words or phrases from the vocabulary are mapped to vectors of real numbers.
 
-- ##### Word2Vec
-*Word2vec* is a group of related models that are used to produce word embeddings. It transforms words to vectors.
+- **Word2Vec** : a group of related models that are used to produce word embeddings. It transforms words to vectors.
   - **Continuous Bag of Words (CboW)** : the model predicts the current word from a window of surrounding context words. The order of context words does not influence prediction (bag-of-words assumption).
   - **Skip-gram** : the model uses the current word to predict the surrounding window of context words. It weighs nearby context words more heavily than more distant context words.
 
-- ##### GloVe
-*GloVe*, coined from Global Vectors, is an unsupervised learning algorithm for obtaining vector representations for words. Training is performed on aggregated global word-word co-occurrence statistics from a corpus, and the resulting representations showcase interesting linear substructures of the word vector space.
+- **GloVe** : coined from Global Vectors, is an unsupervised learning algorithm for obtaining vector representations for words. Training is performed on aggregated global word-word co-occurrence statistics from a corpus, and the resulting representations showcase interesting linear substructures of the word vector space.
 
 ### Latent Dirichlet Allocation (LDA)
 *LDA* is a generative probabilistic model of a corpus. The basic idea is
