@@ -7,6 +7,7 @@ import pandas as pd
 
 import initializers
 import metrics
+import maths
 
 flags.DEFINE_bool("do_train", default=False, help="do training the model")
 flags.DEFINE_bool("do_resume",
@@ -39,9 +40,9 @@ class LogisticRegression():
         self.optimize(X, y)
 
     def optimize(self, X, y):
-        p = sigmoid(np.dot(X, self.weights) + self.bias)
+        probs = self.predict(X)
 
-        linear_gradients = -(y * (1.0 - p) - (1.0 - y) * p)
+        linear_gradients = -(y * (1.0 - probs) - (1.0 - y) * probs)
         weight_gradients = np.expand_dims(linear_gradients, axis=1) * X
         weight_gradients = np.mean(weight_gradients, axis=0)
         bias_gradient = np.mean(linear_gradients)
@@ -50,18 +51,21 @@ class LogisticRegression():
         self.bias -= self.alpha * bias_gradient
 
     def loss_fn(self, X, y):
-        p = sigmoid(np.dot(X, self.weights) + self.bias)
-        return np.mean(-(y * np.log(p) + (1.0 - y) * np.log(1.0 - p)))
+        probs = self.predict(X)
+        return np.mean(-(y * np.log(probs) + (1.0 - y) * np.log(1.0 - probs)))
 
     def accuracy_fn(self, X, y):
-        p = sigmoid(np.dot(X, self.weights) + self.bias)
-        preds = (p > 0.5).astype(np.int32)
+        probs = self.predict(X)
+        preds = (probs > 0.5).astype(np.int32)
         return metrics.accuracy(y, preds)
 
     def evaluate(self, X, y):
         loss = self.loss_fn(X, y)
         accuracy = self.accuracy_fn(X, y)
         return {"loss": loss, "accuracy": accuracy}
+    
+    def predict(self, X):
+        return maths.sigmoid(np.dot(X, self.weights) + self.bias)
 
     def save(self, model_path):
         params = {
@@ -78,10 +82,6 @@ class LogisticRegression():
         self.weights = params["weights"]
         self.bias = params["bias"]
         self.alpha = params["alpha"]
-
-
-def sigmoid(x):
-    return 1.0 / (1.0 + np.exp(-x))
 
 
 def prepare_data(data_path, label_map=None, is_training=False):
