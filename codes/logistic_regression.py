@@ -100,14 +100,14 @@ def prepare_data(data_path, label_map=None, is_training=False):
 
 
 def main(_):
-    model = LogisticRegression(n_features=4, alpha=1e-3)
+    model = LogisticRegression(n_features=4, alpha=0.1)
     model_path = "./models/logistic_regression.pkl"
 
     if FLAGS.do_train:
         data_path = "../datasets/banknote_auth/train.csv"
         X_train, y_train = prepare_data(data_path, is_training=True)
         
-        model.fit(X_train, y_train, epochs=500, batch_size=32)
+        model.fit(X_train, y_train, epochs=20, batch_size=32)
         model.save(model_path)
 
     if FLAGS.do_eval:
