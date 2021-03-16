@@ -20,6 +20,9 @@ FLAGS = flags.FLAGS
 
 
 class LogisticRegression():
+    """ p(x) = g(weights · x + bias)
+        where g(z) = 1 / (1 + exp(-z))
+    """
 
     def __init__(self, n_features, alpha=0.001):
         self.weights = initializers.glorot_uniform((n_features,))
@@ -42,7 +45,9 @@ class LogisticRegression():
     def optimize(self, X, y):
         probs = self.predict(X)
 
+        # the gradients with respect to z = weights · x + bias
         linear_gradients = -(y * (1.0 - probs) - (1.0 - y) * probs)
+
         weight_gradients = np.expand_dims(linear_gradients, axis=1) * X
         weight_gradients = np.mean(weight_gradients, axis=0)
         bias_gradient = np.mean(linear_gradients)
@@ -63,7 +68,7 @@ class LogisticRegression():
         loss = self.loss_fn(X, y)
         accuracy = self.accuracy_fn(X, y)
         return {"loss": loss, "accuracy": accuracy}
-    
+
     def predict(self, X):
         return maths.sigmoid(np.dot(X, self.weights) + self.bias)
 
@@ -75,7 +80,7 @@ class LogisticRegression():
         }
         with open(model_path, "wb") as f:
             pickle.dump(params, f)
-    
+
     def restore(self, model_path):
         with open(model_path, "rb") as f:
             params = pickle.load(f)
@@ -106,14 +111,14 @@ def main(_):
     if FLAGS.do_train:
         data_path = "../datasets/banknote_auth/train.csv"
         X_train, y_train = prepare_data(data_path, is_training=True)
-        
+
         model.fit(X_train, y_train, epochs=20, batch_size=32)
         model.save(model_path)
 
     if FLAGS.do_eval:
         data_path = "../datasets/banknote_auth/dev.csv"
         X_dev, y_dev = prepare_data(data_path, is_training=False)
-        
+
         model.restore(model_path)
         result = model.evaluate(X_dev, y_dev)
         print(result)
