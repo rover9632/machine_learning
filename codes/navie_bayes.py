@@ -41,6 +41,11 @@ class GaussianNB():
         print("training accuracy: %.4f" % acc)
 
     def train_step(self, X, y):
+        """Online update of Gaussian mean and variance.
+
+        for variance updating formula details, see:
+        http://i.stanford.edu/pub/cstr/reports/cs/tr/79/773/CS-TR-79-773.pdf
+        """
         for i in np.unique(y):
             X_i = X[y == i, :]
             b_mu = np.mean(X_i, axis=0)
