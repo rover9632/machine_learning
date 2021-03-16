@@ -9,5 +9,5 @@ $$
 The softmax function, also known as softargmax or normalized exponential function, is a generalization of the logistic function to multiple dimensions. [[wiki]](https://en.wikipedia.org/wiki/Softmax_function)
 
 $$
-\sigma (\mathbf{z})_i = \frac {e^{z_i}}{\sum_{j=1}^{K} e^{z_j}} \; \; \; \; for  \; i=1, ... ,K  \; and  \; \mathbf{z} \in R^K
+\sigma (\mathbf{z})_i = \frac {exp(z_i)}{\sum_{j=1}^{K} exp(z_j)} \; \; \; \; for  \; i=1, ... ,K  \; and  \; \mathbf{z} \in R^K
 $$
