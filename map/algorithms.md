@@ -35,14 +35,79 @@ $$
 5. 实现简单，计算量小，速度快，存储资源低。
 6. 可以处理特征间有相关性的问题。
 7. 当特征空间很大时，性能不是很好。
-8. 容易欠拟合，一般准确度不很高。
+8. 容易欠拟合，一般准确度不是很高。
 
 #### Linear Discriminant Analysis (LDA)
 The representation of LDA is pretty straight forward. For a given dataset, mapping the data points on a line,  making the mapping points of those which belong to same class as close as possible and the mapping points of those which belong to different class as far as possible. Prediction is made by mapping a new sample on the same line and finding which class it closest to.
 
 ### Decision Trees
-Decision Trees (DTs) are a non-parametric supervised learning method used for classification and regression. The goal is to create a model that predicts the value of a target variable by learning simple decision rules inferred from the data features.
-Given training vectors and a label vector , a decision tree recursively partitions the space such that the samples with the same labels are grouped together.
+Decision Trees (DTs) are a non-parametric supervised learning method used for classification and regression. The goal is to create a model that predicts the value of a target variable by learning simple decision rules inferred from the data features.  
+
+Given training vectors $x_i \in R^n ,\; i=1,...,l$ and a label vector $y \in R^l$ , a decision tree recursively partitions the space such that the samples with the same labels are grouped together.  
+
+Let the data at node $m$ be represented by $Q_m$ with $N_m$ samples. For each  candidate split $\theta = (j, t_m)$ (called condition $A_m$) consisting of a feature $j$ and threshold $t_m$ , partition the data into $Q_m^{left}(\theta)$ and $Q_m^{right}(\theta)$ subsets :
+
+$$
+Q_m^{left}(\theta) = \{(x, y) | x_j <= t_m\} \;\;and\;\; ​Q_m^{right}(\theta) = Q_m \setminus Q_m^{left}(\theta)
+$$
+
+Define an impurity function or loss function $H()$ , then the impurity of splited (conditioned $A_m$) is :
+
+$$
+H(Q_m \mid A_m) = \frac{N_m^{left}}{N_m} H(Q_m^{left}(\theta))
++ \frac{N_m^{right}}{N_m} H(Q_m^{right}(\theta))
+$$
+
+The information gain is :
+
+$$
+G(Q_m, A_m) = H(Q_m) - H(Q_m \mid A_m)
+$$
+
+Then select the split that maximize the information gain :
+
+$$
+\theta^* = \operatorname{argmax}_\theta  G(Q_m, A_m)
+$$
+
+Recurse for subsets $Q_m^{left}(\theta^*)$ and $Q_m^{right}(\theta^*)$ until the maximum allowable depth is reached or non-splittable or information gain is 0.
+
+If a target is a classification outcome taking on values $0,1,…,K-1$, for node $m$, let
+
+$$
+p_{mk} = \frac{1}{N_m} \sum_{y \in Q_m} I(y = k)
+$$
+
+be the proportion of class $k$ observations in node $m$. Common measures of impurity are the following :
+
+Gini :
+
+$$
+H(Q_m) = \sum_k p_{mk} (1 - p_{mk})
+$$
+
+Entropy :
+
+$$
+H(Q_m) = - \sum_k p_{mk} \log(p_{mk})
+$$
+
+特点：
+1. 容易理解和解释，可以可视化。
+2. 只需要很少的数据准备。
+3. 预测快，复杂度是决策树的深度。
+4. 能够处理数字类型(numerical)和分类类型(categorical)的数据。
+5. 能够处理多输出问题。
+6. 使用白箱模型，可以通过布尔逻辑轻松解释。而在黑箱模型（如神经网络）中，可能难以解释。
+7. 可以使用统计测试来验证模型。这使得考虑模型的可靠性成为可能。
+8. 即使生成数据的真实模型在某种程度上违背了它的假设，也可以表现良好。
+9. 容易过拟合，需要通过剪枝、设置最大深度等机制来避免此问题。
+10. 可能不稳定，因为数据中的细微变化可能会导致生成完全不同的树。通过集成方法可以缓解此问题。
+11. 决策树的预测既不是平滑的也不是连续的，而是分段恒定的近似值。因此，他们不擅长外推。
+12. 最优学习被认为是NP完备问题(NP-complete)。因此，一般基于启发式算法加上集成方法来缓解。
+13. 有些概念很难学习，因为决策树无法轻松表达它们，例如XOR，奇偶校验或多路复用器问题。
+14. 如果某些类别占主导，则容易偏向它们，因此要做数据平衡。
+
 
 ### Naive Bayes
 Naive Bayes methods are a set of supervised learning algorithms based on applying Bayes’ theorem with the “naive” assumption of conditional independence between every pair of features given the value of the class variable.
