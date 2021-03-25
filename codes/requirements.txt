@@ -4,3 +4,4 @@ absl-py==0.11.0
 numpy==1.20.1
 scipy==1.6.1
 pandas==1.2.3
+cvxopt==1.2.6
