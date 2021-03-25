@@ -218,11 +218,15 @@ class DecisionTree():
 
     def save(self, model_path):
         params = {
-            "criterion": self.criterion.name,
-            "max_depth": self.max_depth,
-            "min_samples_split": self.min_samples_split,
-            "min_samples_leaf": self.min_samples_leaf,
-            "root": self.root.to_dict()
+            "inits": {
+                "criterion": self.criterion.name,
+                "max_depth": self.max_depth,
+                "min_samples_split": self.min_samples_split,
+                "min_samples_leaf": self.min_samples_leaf,
+            },
+            "attrs": {
+                "root": self.root.to_dict()
+            }
         }
         with open(model_path, "w", encoding="utf-8") as f:
             json.dump(params, f, indent=2)
@@ -232,14 +236,13 @@ class DecisionTree():
         with open(model_path, encoding="utf-8") as f:
             params = json.load(f)
 
-        tree = cls(criterion=params["criterion"],
-                   max_depth=params["max_depth"],
-                   min_samples_split=params["min_samples_split"],
-                   min_samples_leaf=params["min_samples_leaf"])
+        model = cls(**params["inits"])
+        for k, v in params["attrs"].items():
+            if k == "root":
+                v = Node.from_dict(**v)
+            setattr(model, k, v)
 
-        tree.root = Node.from_dict(**params["root"])
-
-        return tree
+        return model
 
 
 def prepare_data(data_path, label_map=None, is_training=False):
@@ -259,13 +262,13 @@ def prepare_data(data_path, label_map=None, is_training=False):
 
 def main(_):
     label_map = {"Iris-setosa": 0, "Iris-versicolor": 1, "Iris-virginica": 2}
-    model = DecisionTree(criterion="gini", max_depth=4)
     model_path = "./models/decision_tree.json"
 
     if FLAGS.do_train:
         data_path = "../datasets/iris/train.csv"
         X_train, y_train = prepare_data(data_path, label_map, is_training=True)
 
+        model = DecisionTree(criterion="gini", max_depth=4)
         model.fit(X_train, y_train)
         model.save(model_path)
 

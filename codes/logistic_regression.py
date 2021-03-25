@@ -24,14 +24,17 @@ class LogisticRegression():
         where g(z) = 1 / (1 + exp(-z))
     """
 
-    def __init__(self, n_features, alpha=0.001):
-        self.weights = initializers.glorot_uniform((n_features,))
+    def __init__(self, alpha=0.001):
+        self.weights = None
         self.bias = 0.0
         self.alpha = alpha
 
     def fit(self, X, y, epochs=1, batch_size=32):
+        n_samples, n_features = X.shape
+        self.weights = initializers.glorot_uniform((n_features,))
+
         for epoch in range(1, epochs + 1):
-            for i in range(0, len(y), batch_size):
+            for i in range(0, n_samples, batch_size):
                 X_batch, y_batch = X[i:i + batch_size], y[i:i + batch_size]
                 self.train_step(X_batch, y_batch)
 
@@ -70,23 +73,33 @@ class LogisticRegression():
         return {"loss": loss, "accuracy": accuracy}
 
     def predict(self, X):
+        if self.weights is None:
+            raise Exception("Not trained yet !")
         return maths.sigmoid(np.dot(X, self.weights) + self.bias)
 
     def save(self, model_path):
         params = {
-            "weights": self.weights,
-            "bias": self.bias,
-            "alpha": self.alpha
+            "inits": {
+                "alpha": self.alpha
+            },
+            "attrs": {
+                "weights": self.weights,
+                "bias": self.bias,
+            }
         }
         with open(model_path, "wb") as f:
             pickle.dump(params, f)
 
-    def restore(self, model_path):
+    @classmethod
+    def restore(cls, model_path):
         with open(model_path, "rb") as f:
             params = pickle.load(f)
-        self.weights = params["weights"]
-        self.bias = params["bias"]
-        self.alpha = params["alpha"]
+
+        model = cls(**params["inits"])
+        for k, v in params["attrs"].items():
+            setattr(model, k, v)
+
+        return model
 
 
 def prepare_data(data_path, label_map=None, is_training=False):
@@ -105,13 +118,13 @@ def prepare_data(data_path, label_map=None, is_training=False):
 
 
 def main(_):
-    model = LogisticRegression(n_features=4, alpha=0.1)
     model_path = "./models/logistic_regression.pkl"
 
     if FLAGS.do_train:
         data_path = "../datasets/banknote_auth/train.csv"
         X_train, y_train = prepare_data(data_path, is_training=True)
 
+        model = LogisticRegression(alpha=0.1)
         model.fit(X_train, y_train, epochs=20, batch_size=32)
         model.save(model_path)
 
@@ -119,7 +132,7 @@ def main(_):
         data_path = "../datasets/banknote_auth/dev.csv"
         X_dev, y_dev = prepare_data(data_path, is_training=False)
 
-        model.restore(model_path)
+        model = LogisticRegression.restore(model_path)
         result = model.evaluate(X_dev, y_dev)
         print(result)
 

@@ -167,10 +167,10 @@ def main(_):
     model_path = "./models/svm.pkl"
 
     if FLAGS.do_train:
-        model = SVC(kernel="rbf")
         data_path = "../datasets/banknote_auth/train.csv"
         X_train, y_train = prepare_data(data_path, is_training=True)
 
+        model = SVC(kernel="rbf")
         model.fit(X_train, y_train)
         model.save(model_path)
 

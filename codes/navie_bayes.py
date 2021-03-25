@@ -19,19 +19,27 @@ FLAGS = flags.FLAGS
 
 class GaussianNB():
     """
-    y_pred = argmax_c P(c) ∏ P(x_i|c)
+    y_pred = argmax_c P(c) ∏_1^n P(x_i|c)
     where
     P(x_i|c) = exp(-0.5 * (x_i - mu_c)^2 / sigma_c^2) / sqrt(2 * pi * sigma_c^2)
     """
 
-    def __init__(self, n_features, n_classes):
-        self.mu = np.zeros(shape=(n_classes, n_features))
-        self.variance = np.zeros(shape=(n_classes, n_features))
-        self.count = np.zeros(shape=n_classes)
-        self.prior = np.zeros(shape=n_classes)
+    def __init__(self, n_classes):
+        self.n_classes = n_classes
+        self.mu = None
+        self.variance = None
+        self.count = None
+        self.prior = None
 
     def fit(self, X, y, batch_size=32):
-        for i in range(0, len(y), batch_size):
+        n_samples, n_features = X.shape
+
+        self.mu = np.zeros(shape=(self.n_classes, n_features))
+        self.variance = np.zeros(shape=(self.n_classes, n_features))
+        self.count = np.zeros(shape=self.n_classes)
+        self.prior = np.zeros(shape=self.n_classes)
+
+        for i in range(0, n_samples, batch_size):
             X_batch, y_batch = X[i:i + batch_size], y[i:i + batch_size]
             self.train_step(X_batch, y_batch)
 
@@ -71,6 +79,9 @@ class GaussianNB():
         return {"accuracy": accuracy}
 
     def predict(self, X):
+        if self.mu is None:
+            raise Exception("Not trained yet !")
+
         X = np.expand_dims(X, axis=1)
         mu = np.expand_dims(self.mu, axis=0)
         variance = np.expand_dims(self.variance, axis=0)
@@ -83,21 +94,29 @@ class GaussianNB():
 
     def save(self, model_path):
         params = {
-            "mu": self.mu,
-            "variance": self.variance,
-            "count": self.count,
-            "prior": self.prior
+            "inits": {
+                "n_classes": self.n_classes
+            },
+            "attrs": {
+                "mu": self.mu,
+                "variance": self.variance,
+                "count": self.count,
+                "prior": self.prior
+            }
         }
         with open(model_path, "wb") as f:
             pickle.dump(params, f)
 
-    def restore(self, model_path):
+    @classmethod
+    def restore(cls, model_path):
         with open(model_path, "rb") as f:
             params = pickle.load(f)
-        self.mu = params["mu"]
-        self.variance = params["variance"]
-        self.count = params["count"]
-        self.prior = params["prior"]
+
+        model = cls(**params["inits"])
+        for k, v in params["attrs"].items():
+            setattr(model, k, v)
+
+        return model
 
 
 def prepare_data(data_path, label_map=None, is_training=False):
@@ -117,13 +136,13 @@ def prepare_data(data_path, label_map=None, is_training=False):
 
 def main(_):
     label_map = {"Iris-setosa": 0, "Iris-versicolor": 1, "Iris-virginica": 2}
-    model = GaussianNB(n_features=4, n_classes=3)
     model_path = "./models/gaussian_naive_bayes.pkl"
 
     if FLAGS.do_train:
         data_path = "../datasets/iris/train.csv"
         X_train, y_train = prepare_data(data_path, label_map, is_training=True)
 
+        model = GaussianNB(n_classes=len(label_map))
         model.fit(X_train, y_train, batch_size=128)
         model.save(model_path)
 
@@ -131,7 +150,7 @@ def main(_):
         data_path = "../datasets/iris/dev.csv"
         X_dev, y_dev = prepare_data(data_path, label_map, is_training=False)
 
-        model.restore(model_path)
+        model = GaussianNB.restore(model_path)
         result = model.evaluate(X_dev, y_dev)
         print(result)
 
