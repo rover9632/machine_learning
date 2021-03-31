@@ -28,7 +28,7 @@ L = -[ y \log {\hat y} + (1 - y) \log(1 - \hat y) ]
 $$
 
 特点：  
-1. 属于判别式模型 (Discrimitive Model) 。
+1. 属于判别式模型 (Discriminative Model) 。
 2. 适用于分类任务，原生是二分类的，采用 One-vs-Rest 等方法可支持多分类任务。
 3. 仅适用于线性问题，即样本的特征空间是线性可分的。
 4. 输出结果在0到1之间，有概率意义。
@@ -51,7 +51,7 @@ $$
 Q_m^{left}(\theta) = \{(x, y) | x_j <= t_m\} \;\;and\;\; ​Q_m^{right}(\theta) = Q_m \setminus Q_m^{left}(\theta)
 $$
 
-Define an impurity function or loss function $H()$ , then the impurity of splited (conditioned $A_m$) is :
+Define an impurity function or loss function $H()$ , then the impurity of split (conditioned $A_m$) is :
 
 $$
 H(Q_m \mid A_m) = \frac{N_m^{left}}{N_m} H(Q_m^{left}(\theta))
@@ -149,7 +149,121 @@ The smoothing priors $\alpha \ge 0$ accounts for features not present in the lea
 Predictions are made for a new data point by searching through the entire training set for the K most similar instances (the neighbors) and summarizing the output variable for those K instances. For regression problems, this might be the mean output variable, for classification problems this might be the mode (or most common) class value.
 
 ### Support Vector Machines
-A support vector machine constructs a hyper-plane or set of hyper-planes in a high or infinite dimensional space, which can be used for classification, regression or other tasks. Intuitively, a good separation is achieved by the hyper-plane that has the largest distance to the nearest training data points of any class (so-called functional margin), since in general the larger the margin the lower the generalization error of the classifier. Only these nearest training data points are relevant in defining the hyperplane and in the construction of the classifier. These points are called the support vectors.
+A support vector machine (SVM) constructs a hyper-plane or set of hyper-planes in a high or infinite dimensional space, which can be used for classification, regression or other tasks. Intuitively, a good separation is achieved by the hyper-plane that has the largest distance to the nearest training data points of any class (so-called functional margin), since in general the larger the margin the lower the generalization error of the classifier. Only these nearest training data points are relevant in defining the hyperplane and in the construction of the classifier. These points are called the support vectors.
+
+Given training vectors $x_i \in \mathbb{R}^p \;,\; i=1,...,n$ , in two classes, and a vector $y \in \{1, -1\}^n$ , our goal is to find $w \in \mathbb{R}^p$ and $b \in \mathbb{R}$ , such that the prediction given by $\text{sign} (w^T x + b)$ is correct for most samples.
+
+The hyper-plane would be $w^T x + b = 0$, let the minimal gap be $\gamma$, for a perfect separation, the problem is :
+
+$$
+\begin{aligned}
+\max_{w,b} \quad & \gamma \\
+\text{s.t.} \quad & \frac{y_i \; (w^T x_i + b)}{||w||} \geq \gamma \;,\; i=1,2,...,n
+\end{aligned}
+$$
+
+Since $w$ and $b$ changed proportionally, the hyper-plane remain unchanged, let $||w|| \gamma = 1$, then the problem is :
+
+$$
+\begin{aligned}
+\min_{w, b, \zeta} \quad & \frac{1}{2} w^T w \\
+\text{s.t.} \quad & y_i (w^T x_i + b) \geq 1 \;,\; i=1,2, ..., n
+\end{aligned}
+$$
+
+To soft the margin with a distance $\zeta_i$ for each sample and add a penalty item $C \sum_{i=1}^{n} \zeta_i$ to penal the samples those are misclassified or within the margin boundary, where the term $C$ controls the strength of this penalty, acts as an inverse regularization parameter. Then the primal problem is :
+
+$$
+\begin{aligned}
+\min_{w, b, \zeta} \quad & \frac{1}{2} w^T w + C \sum_{i=1}^{n} \zeta_i \\
+\text{s.t.} \quad & y_i (w^T x_i + b) \geq 1 - \zeta_i \;,\\
+& \zeta_i \geq 0 \;,\; i=1,2, ..., n
+\end{aligned}
+$$
+
+Construct the Lagrange function :
+
+$$
+\begin{aligned}
+L(w,b,\zeta,\alpha,\lambda) = & \; \frac{1}{2} w^T w + C \sum_{i=1}^{n} \zeta_i + \sum_{i=1}^{n} \alpha_i [1 - \zeta_i - y_i (w^T x_i + b)] - \sum_{i=1}^{n} \lambda_i \zeta_i \;,\\
+\text{s.t.} \quad & \; \alpha_i \geq 0 \;,\; \lambda_i \geq 0 \;,\; i=1,...,n
+\end{aligned}
+$$
+
+Then the problem is :
+
+$$
+\min_{w, b, \zeta} \; \max_{\alpha, \lambda} \; L(w,b,\zeta,\alpha,\lambda)
+$$
+
+Exchange the $\min$ and $\max$, then got the dual problem :
+
+$$
+\max_{\alpha, \lambda} \; \min_{w, b, \zeta} \; L(w,b,\zeta,\alpha,\lambda)
+$$
+
+To solve the problem $\min_{w, b, \zeta} \; L(w,b,\zeta,\alpha,\lambda)$ , is to let the partial derivative of $L$ with respect to $w$ , $b$ and $\zeta$ equals 0 :
+
+$$
+\begin{aligned}
+\frac {\partial L} {\partial w} = & \; w - \sum_{i=1}^{n} \alpha_i x_i y_i = 0 \\
+\frac {\partial L} {\partial b} = & - \sum_{i=1}^{n} \alpha_i y_i = 0 \\
+\frac {\partial L} {\partial \zeta_i} = & \; C - \alpha_i - \lambda_i = 0 \;,\; i=1,2,...,n
+\end{aligned}
+$$
+
+got :
+
+$$
+\begin{aligned}
+w = & \sum_{i=1}^{n} \alpha_i x_i y_i \\
+\sum_{i=1}^{n} \alpha_i y_i = & \; 0 \\
+\lambda_i = & \; C - \alpha_i \;,\; i=1,2,...,n \\
+L(w,b,\zeta,\alpha,\lambda) = & - \frac {1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j (x_i^T x_j) + \sum_{i=1}^{n} \alpha_i
+\end{aligned}
+$$
+
+Next is to solve the problem $\max_{\alpha, \lambda} \; L(w,b,\zeta,\alpha,\lambda)$, considering the constraints $\alpha_i \geq 0 \;,\; \lambda_i \geq 0 \;,\; i=1,...,n$, the dual problem become :
+
+$$
+\begin{aligned}
+\min_{\alpha} \quad & \frac{1}{2} \alpha^T Q \alpha - e^T \alpha \\
+\text {s.t.} \quad & y^T \alpha = 0 \\
+& 0 \leq \alpha_i \leq C \;,\; i=1,2, ..., n
+\end{aligned}
+$$
+
+where $e$ is the vector of all ones, and $Q$ is an n by n positive semidefinite matrix , $Q_{ij} = y_i y_j (x_i^T x_j)$ .
+
+If we replace all $x$ with $\phi (x)$ , then we get a kernelized SVM , where $Q_{ij} = y_i y_j K(x_i, x_j)$ , where $K(x_i, x_j) = \phi(x_i)^T \phi(x_j)$ is the kernel.
+
+This is a convex quadratic programming problem, it can be solved by sequential minimal optimization (SMO) .
+
+For a given sample $x$, the prediction is :
+
+$$
+\hat y = \sum_{i \in SV} \alpha_i y_i K(x_i, x) + b
+$$
+
+where $b = y_j - \sum_{i \in SV} \alpha_i y_i K(x_i, x_j)$ , where $j$ is the index of one of the samples that satisfied $0 < \alpha_j < C$ , and $SV$ is the collection of indices that satisfied $\alpha_i > 0$, which the corresponding sample called support vector. 
+
+Kernels :  
+linear : $K(x_i, x_j) = x_i^T x_j$  
+polynomial : $K(x_i, x_j) = (\gamma (x_i^T x_j) + r)^d$  
+rbf : $K(x_i, x_j) = \text{exp} (-\gamma (x_i - x_j)^T (x_i - x_j))$  
+sigmoid : $K(x_i, x_j) = \tanh(\gamma (x_i^T x_j) + r)$
+
+特点：
+1. 原生是二分类的，采用 One-vs-One 等方法可支持多分类任务。
+2. 属于凸二次规划问题(convex quadratic programming problem)，局部最优解就是全局最优解。
+3. 可以有效处理高维空间数据。
+4. 特征维度大于样本数量时依然有效。
+5. 只使用少量的训练数据子集(即支持向量)来决策，所以也节约内存。
+6. 使用核技巧，也可以处理各种非线性可分的问题。
+7. 特征维度远大于样本数量时容易过拟合，要注意核函数选择和正则化。
+8. 不直接提供概率估计。
+9. 训练数据量很大时非常消耗内存和训练时间。
+
 
 ### Ensemble methods
 The goal of ensemble methods is to combine the predictions of several base estimators built with a given learning algorithm in order to improve generalizability / robustness over a single estimator.
