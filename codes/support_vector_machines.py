@@ -111,9 +111,8 @@ class SVC():
         return self.polynomial(X_i, X_j, gamma, degree, coef0)
 
     def rbf(self, X_i, X_j, gamma=0.1, **kwargs):
-        X_i = np.expand_dims(X_i, axis=1)
-        X_j = np.expand_dims(X_j, axis=0)
-        return np.exp(-gamma * np.sum(np.square(X_i - X_j), axis=-1))
+        diff = np.expand_dims(X_i, axis=1) - np.expand_dims(X_j, axis=0)
+        return np.exp(-gamma * np.einsum("ijk,ijk->ij", diff, diff))
 
     def sigmoid(self, X_i, X_j, gamma=0.001, coef0=0.0, **kwargs):
         return np.tanh(gamma * np.dot(X_i, X_j.T) + coef0)
