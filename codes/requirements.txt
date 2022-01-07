@@ -4,5 +4,5 @@ absl-py==0.11.0
 numpy==1.19.5
 scipy==1.6.1
 pandas==1.2.3
-cvxopt==1.2.6
+cvxopt==1.2.7
 tensorflow==2.4.1
